@@ -937,7 +937,7 @@ static int _authorizer_callback(void* user_arg, int action, const char* arg1, co
     }
     else {
         if (PyLong_Check(ret)) {
-            rc = _PyLong_AsInt(ret);
+            rc = PyLong_AsLong(ret);
             if (rc == -1 && PyErr_Occurred()) {
                 if (_enable_callback_tracebacks)
                     PyErr_Print();
