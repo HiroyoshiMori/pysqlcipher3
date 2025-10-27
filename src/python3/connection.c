@@ -854,12 +854,22 @@ static void _pysqlite_drop_unused_cursor_references(pysqlite_Connection* self)
 
     for (i = 0; i < PyList_Size(self->cursors); i++) {
         weakref = PyList_GetItem(self->cursors, i);
-        if (PyWeakref_GetObject(weakref) != Py_None) {
-            if (PyList_Append(new_list, weakref) != 0) {
-                Py_DECREF(new_list);
-                return;
+        PyObject *obj;
+        int ok = PyWeakref_GetRef(weakref, &obj);
+        if (ok > 0) {
+            // weakref is alive
+            if (obj != Py_None) {
+                if (PyList_Append(new_list, weakref) != 0) {
+                    Py_DECREF(obj);
+                    Py_DECREF(new_list);
+                    return;
+                }
             }
+            // release strong reference
+            Py_DECREF(obj);
         }
+        // ok == 0 => weakref is dead, skip
+        // ok < 0 => error occurred, could log if desired
     }
 
     Py_DECREF(self->cursors);
