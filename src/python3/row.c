@@ -86,8 +86,8 @@ PyObject* pysqlite_row_subscript(pysqlite_Row* self, PyObject* idx)
     Py_ssize_t nitems, i;
     const char* compare_key;
 
-    char* p1;
-    char* p2;
+    const char* p1;
+    const char* p2;
 
     PyObject* item;
 
@@ -115,7 +115,6 @@ PyObject* pysqlite_row_subscript(pysqlite_Row* self, PyObject* idx)
             if (!compare_key) {
                 return NULL;
             }
-
             p1 = key;
             p2 = compare_key;
 
