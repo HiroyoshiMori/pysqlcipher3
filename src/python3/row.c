@@ -84,7 +84,7 @@ PyObject* pysqlite_row_subscript(pysqlite_Row* self, PyObject* idx)
     Py_ssize_t _idx;
     const char* key;
     Py_ssize_t nitems, i;
-    char* compare_key;
+    const char* compare_key;
 
     char* p1;
     char* p2;
@@ -111,7 +111,7 @@ PyObject* pysqlite_row_subscript(pysqlite_Row* self, PyObject* idx)
             PyObject *obj;
             obj = PyTuple_GET_ITEM(self->description, i);
             obj = PyTuple_GET_ITEM(obj, 0);
-            compare_key = _PyUnicode_AsString(obj);
+            compare_key = PyUnicode_AsUTF8AndSize(obj, &i);
             if (!compare_key) {
                 return NULL;
             }
