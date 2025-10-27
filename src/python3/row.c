@@ -41,8 +41,11 @@ pysqlite_row_new(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 
     assert(type != NULL && type->tp_alloc != NULL);
 
-    if (!_PyArg_NoKeywords("Row()", kwargs))
+    if (kwargs != NULL && PyDict_Check(kwargs) && PyDict_Size(kwargs) != 0) {
+        PyErr_SetString(PyExc_TypeError, "Row() takes no keyword arguments");
         return NULL;
+    }
+
     if (!PyArg_ParseTuple(args, "OO", &cursor, &data))
         return NULL;
 
