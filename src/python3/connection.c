@@ -220,15 +220,16 @@ void pysqlite_do_all_statements(pysqlite_Connection* self, int action, int reset
 
     for (i = 0; i < PyList_Size(self->statements); i++) {
         weakref = PyList_GetItem(self->statements, i);
-        statement = PyWeakref_GetObject(weakref);
-        if (statement != Py_None) {
-            Py_INCREF(statement);
-            if (action == ACTION_RESET) {
-                (void)pysqlite_statement_reset((pysqlite_Statement*)statement);
-            } else {
-                (void)pysqlite_statement_finalize((pysqlite_Statement*)statement);
+        if (PyWeakref_GetRef(weakref, &statement) > 0) {
+            if (statement != Py_None) {
+                Py_INCREF(statement);
+                if (action == ACTION_RESET) {
+                    (void)pysqlite_statement_reset((pysqlite_Statement*)statement);
+                } else {
+                    (void)pysqlite_statement_finalize((pysqlite_Statement*)statement);
+                }
+                Py_DECREF(statement);
             }
-            Py_DECREF(statement);
         }
     }
 
