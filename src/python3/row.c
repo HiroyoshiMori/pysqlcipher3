@@ -82,7 +82,7 @@ PyObject* pysqlite_row_item(pysqlite_Row* self, Py_ssize_t idx)
 PyObject* pysqlite_row_subscript(pysqlite_Row* self, PyObject* idx)
 {
     Py_ssize_t _idx;
-    char* key;
+    const char* key;
     Py_ssize_t nitems, i;
     char* compare_key;
 
@@ -101,7 +101,7 @@ PyObject* pysqlite_row_subscript(pysqlite_Row* self, PyObject* idx)
         Py_XINCREF(item);
         return item;
     } else if (PyUnicode_Check(idx)) {
-        key = _PyUnicode_AsString(idx);
+        key = PyUnicode_AsUTF8AndSize(idx, &i);
         if (key == NULL)
             return NULL;
 
