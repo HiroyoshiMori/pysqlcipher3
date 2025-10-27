@@ -95,7 +95,7 @@ int pysqlite_statement_bind_parameter(pysqlite_Statement* self, int pos, PyObjec
 {
     int rc = SQLITE_OK;
     const char* buffer;
-    char* string;
+    const char* string;
     Py_ssize_t buflen;
     parameter_type paramtype;
 
