@@ -524,17 +524,36 @@ _pysqlite_set_result(sqlite3_context* context, PyObject* py_val)
     } else if (PyObject_CheckBuffer(py_val)) {
         const char* buffer;
         Py_ssize_t buflen;
+        #if PY_VERSION_HEX < 0x030C0000
+        // Python <3.12
         if (PyObject_AsCharBuffer(py_val, &buffer, &buflen) != 0) {
             PyErr_SetString(PyExc_ValueError,
                             "could not convert BLOB to buffer");
             return -1;
         }
+        #else
+        // Python >=3.12
+        Py_buffer view;
+        if (PyObject_GetBuffer(py_val, &view, PyBUF_SIMPLE) != 0) {
+            PyErr_SetString(PyExc_ValueError,
+                            "could not convert BLOB to buffer");
+            return -1;
+        }
+        buffer = view.buf;
+        buflen = view.len;
+        #endif
+
         if (buflen > INT_MAX) {
             PyErr_SetString(PyExc_OverflowError,
                             "BLOB longer than INT_MAX bytes");
             return -1;
         }
         sqlite3_result_blob(context, buffer, (int)buflen, SQLITE_TRANSIENT);
+
+        #if PY_VERSION_HEX >= 0x030C0000
+        // Python >=3.12
+        PyBuffer_Release(&view);
+        #endif
     } else {
         return -1;
     }
