@@ -236,10 +236,16 @@ void pysqlite_do_all_statements(pysqlite_Connection* self, int action, int reset
     if (reset_cursors) {
         for (i = 0; i < PyList_Size(self->cursors); i++) {
             weakref = PyList_GetItem(self->cursors, i);
-            cursor = (pysqlite_Cursor*)PyWeakref_GetObject(weakref);
-            if ((PyObject*)cursor != Py_None) {
+            PyObject *obj;
+            int ok = PyWeakref_GetRef(weakref, &obj);
+            if (ok > 0 && obj != Py_None) {
+                cursor = (pysqlite_Cursor*)obj;
                 cursor->reset = 1;
+                // release the strong reference
+                Py_DECREF(obj);
             }
+            // if ok == 0, reference is dead
+            // if ok < 0, error occurred
         }
     }
 }
